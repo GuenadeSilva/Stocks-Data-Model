@@ -1,24 +1,21 @@
+import os
 import yfinance as yf
 import pandas as pd
 from pandas_gbq import to_gbq
 from google.oauth2 import service_account
-import os
 from dotenv import load_dotenv
 
 # ------------------------------
-# CONFIG
+# LOAD ENV VARIABLES
 # ------------------------------
-# Load .env variables
-load_dotenv()
+load_dotenv()  # loads variables from .env file
 
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH")
 BQ_DATASET = os.getenv("BQ_DATASET")
+GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH")
 
-# Stocks to pull
-TICKERS = ["AAPL", "MSFT", "GOOGL", "UBER", "NVDA", "AMZN"]
+TICKERS = ["AAPL", "MSFT", "GOOGL", "UBER", "NVDA", "AMZN"]  # extend as needed
 
-# BigQuery credentials
 credentials = service_account.Credentials.from_service_account_file(
     GCP_CREDENTIALS_PATH
 )
@@ -33,88 +30,102 @@ def pull_price_data(ticker):
     stock = yf.Ticker(ticker)
 
     # -------------------
-    # Historical prices (raw)
+    # Historical Prices
     # -------------------
-    df_prices = stock.history(period="max", auto_adjust=False, actions=True)
-    df_prices = df_prices.reset_index()
+    df_prices = stock.history(period="max").reset_index()
     df_prices["symbol"] = ticker
-
-    # Rename known columns, keep others as-is
-    rename_map = {
-        "Date": "date",
-        "Open": "open",
-        "High": "high",
-        "Low": "low",
-        "Close": "close",
-        "Adj Close": "adj_close",
-        "Volume": "volume",
-        "Dividends": "dividends",
-        "Stock Splits": "splits",
-    }
     df_prices = df_prices.rename(
-        columns={k: v for k, v in rename_map.items() if k in df_prices.columns}
+        columns={
+            "Date": "date",
+            "Open": "open",
+            "High": "high",
+            "Low": "low",
+            "Close": "close",
+            "Volume": "volume",
+            "Dividends": "dividends",
+            "Stock Splits": "splits",
+            "Adj Close": "adj_close",
+        }
     )
-
-    # Ensure adj_close exists
     if "adj_close" not in df_prices.columns:
-        df_prices["adj_close"] = df_prices.get("close")
+        df_prices["adj_close"] = df_prices["close"]
 
     # -------------------
-    # Dividends (separate table)
+    # Dividends
     # -------------------
     df_div = stock.dividends.reset_index()
-    if not df_div.empty:
-        df_div["symbol"] = ticker
-        df_div = df_div.rename(columns={"Date": "date", "Dividends": "dividend_amount"})
+    df_div["symbol"] = ticker
+    df_div = df_div.rename(columns={"Date": "date", "Dividends": "dividend_amount"})
 
     # -------------------
-    # Splits (separate table)
+    # Splits
     # -------------------
     df_splits = stock.splits.reset_index()
-    if not df_splits.empty:
-        df_splits["symbol"] = ticker
-        df_splits = df_splits.rename(
-            columns={"Date": "date", "Stock Splits": "split_ratio"}
-        )
+    df_splits["symbol"] = ticker
+    df_splits = df_splits.rename(
+        columns={"Date": "date", "Stock Splits": "split_ratio"}
+    )
 
     # -------------------
-    # Company metadata (raw)
+    # Company metadata
     # -------------------
     info = stock.info
-    if info:
-        df_company = pd.DataFrame([{**info, "symbol": ticker}])
-    else:
-        df_company = pd.DataFrame([{"symbol": ticker}])  # fallback if info is empty
+    df_company = pd.DataFrame(
+        [
+            {
+                "symbol": ticker,
+                "company_name": info.get("longName"),
+                "sector": info.get("sector"),
+                "industry": info.get("industry"),
+                "country": info.get("country"),
+                "market_cap": info.get("marketCap"),
+                "currency": info.get("currency"),
+                "exchange": info.get("exchange"),
+            }
+        ]
+    )
 
-    return df_prices, df_div, df_splits, df_company
+    # -------------------
+    # Annual Financials
+    # -------------------
+    df_fin_annual = stock.financials.T.reset_index().rename(columns={"index": "date"})
+    df_fin_annual["symbol"] = ticker
+
+    # -------------------
+    # Quarterly Financials
+    # -------------------
+    df_fin_quarterly = stock.quarterly_financials.T.reset_index().rename(
+        columns={"index": "date"}
+    )
+    df_fin_quarterly["symbol"] = ticker
+
+    return df_prices, df_div, df_splits, df_company, df_fin_annual, df_fin_quarterly
 
 
 # ------------------------------
 # MAIN LOOP
 # ------------------------------
-all_prices = []
-all_dividends = []
-all_splits = []
-all_companies = []
+all_prices, all_dividends, all_splits, all_companies = [], [], [], []
+all_fin_annual, all_fin_quarterly = [], []
 
 for ticker in TICKERS:
-    prices, dividends, splits, company = pull_price_data(ticker)
+    prices, dividends, splits, company, fin_annual, fin_quarterly = pull_price_data(
+        ticker
+    )
     all_prices.append(prices)
-    if not dividends.empty:
-        all_dividends.append(dividends)
-    if not splits.empty:
-        all_splits.append(splits)
+    all_dividends.append(dividends)
+    all_splits.append(splits)
     all_companies.append(company)
+    all_fin_annual.append(fin_annual)
+    all_fin_quarterly.append(fin_quarterly)
 
-# Concatenate all tickers
+# Concatenate
 df_prices_all = pd.concat(all_prices, ignore_index=True)
-df_dividends_all = (
-    pd.concat(all_dividends, ignore_index=True) if all_dividends else pd.DataFrame()
-)
-df_splits_all = (
-    pd.concat(all_splits, ignore_index=True) if all_splits else pd.DataFrame()
-)
+df_dividends_all = pd.concat(all_dividends, ignore_index=True)
+df_splits_all = pd.concat(all_splits, ignore_index=True)
 df_companies_all = pd.concat(all_companies, ignore_index=True)
+df_fin_annual_all = pd.concat(all_fin_annual, ignore_index=True)
+df_fin_quarterly_all = pd.concat(all_fin_quarterly, ignore_index=True)
 
 # ------------------------------
 # WRITE TO BIGQUERY
@@ -126,25 +137,37 @@ to_gbq(
     if_exists="replace",
     credentials=credentials,
 )
-if not df_dividends_all.empty:
-    to_gbq(
-        df_dividends_all,
-        f"{BQ_DATASET}.raw_dividends",
-        project_id=GCP_PROJECT_ID,
-        if_exists="replace",
-        credentials=credentials,
-    )
-if not df_splits_all.empty:
-    to_gbq(
-        df_splits_all,
-        f"{BQ_DATASET}.raw_splits",
-        project_id=GCP_PROJECT_ID,
-        if_exists="replace",
-        credentials=credentials,
-    )
+to_gbq(
+    df_dividends_all,
+    f"{BQ_DATASET}.raw_dividends",
+    project_id=GCP_PROJECT_ID,
+    if_exists="replace",
+    credentials=credentials,
+)
+to_gbq(
+    df_splits_all,
+    f"{BQ_DATASET}.raw_splits",
+    project_id=GCP_PROJECT_ID,
+    if_exists="replace",
+    credentials=credentials,
+)
 to_gbq(
     df_companies_all,
     f"{BQ_DATASET}.raw_company",
+    project_id=GCP_PROJECT_ID,
+    if_exists="replace",
+    credentials=credentials,
+)
+to_gbq(
+    df_fin_annual_all,
+    f"{BQ_DATASET}.raw_financials_annual",
+    project_id=GCP_PROJECT_ID,
+    if_exists="replace",
+    credentials=credentials,
+)
+to_gbq(
+    df_fin_quarterly_all,
+    f"{BQ_DATASET}.raw_financials_quarterly",
     project_id=GCP_PROJECT_ID,
     if_exists="replace",
     credentials=credentials,
