@@ -2,15 +2,18 @@ import yfinance as yf
 import pandas as pd
 from pandas_gbq import to_gbq
 from google.oauth2 import service_account
+import os
+from dotenv import load_dotenv
 
 # ------------------------------
 # CONFIG
 # ------------------------------
-GCP_PROJECT_ID = "stocks-data-model"
-BQ_DATASET = "stocks_model"
-GCP_CREDENTIALS_PATH = (
-    "/Users/guenadesilva/Downloads/stocks-data-model-62af554fa110.json"
-)
+# Load .env variables
+load_dotenv()
+
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
+GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH")
+BQ_DATASET = os.getenv("BQ_DATASET")
 
 # Stocks to pull
 TICKERS = ["AAPL", "MSFT", "GOOGL", "UBER", "NVDA", "AMZN"]
