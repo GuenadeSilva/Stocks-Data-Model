@@ -1,0 +1,30 @@
+[0m17:05:14.217181 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a251110>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a2a7e10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a2b7fd0>]}
+
+
+============================== 17:05:14.220062 | 20ec5a8e-ea4a-474a-9e00-51ce54c9f390 ==============================
+[0m17:05:14.220062 [info ] [MainThread]: Running with dbt=1.11.0-b2
+[0m17:05:14.220425 [debug] [MainThread]: running dbt with arguments {'invocation_command': 'dbt init stocks_data_model', 'version_check': 'True', 'profiles_dir': '/Users/guenadesilva/.dbt', 'printer_width': '80', 'partial_parse': 'True', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'warn_error': 'None', 'debug': 'False', 'cache_selected_only': 'False', 'log_path': 'logs', 'log_format': 'default', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'target_path': 'None', 'fail_fast': 'False', 'write_json': 'True', 'quiet': 'False', 'no_print': 'None', 'use_colors': 'True', 'introspect': 'True', 'send_anonymous_usage_stats': 'True', 'empty': 'None', 'log_cache_events': 'False'}
+[0m17:05:14.230390 [debug] [MainThread]: Starter project path: /Users/guenadesilva/.venvs/dbt/lib/python3.11/site-packages/dbt/include/starter_project
+[0m17:05:14.234258 [info ] [MainThread]: 
+Your new dbt project "stocks_data_model" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m17:05:14.234513 [info ] [MainThread]: Setting up your profile.
+[0m17:06:32.128996 [info ] [MainThread]: Profile stocks_data_model written to /Users/guenadesilva/.dbt/profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+[0m17:06:32.136627 [debug] [MainThread]: Resource report: {"command_name": "init", "command_success": true, "command_wall_clock_time": 77.95578, "process_in_blocks": "0", "process_kernel_time": 0.398587, "process_mem_max_rss": "363134976", "process_out_blocks": "0", "process_user_time": 1.722426}
+[0m17:06:32.137219 [debug] [MainThread]: Command `dbt init` succeeded at 17:06:32.137121 after 77.96 seconds
+[0m17:06:32.138027 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a2d8650>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1048f6f90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10a2b48d0>]}
+[0m17:06:32.138604 [debug] [MainThread]: Flushing usage events
+[0m17:06:32.735195 [debug] [MainThread]: An error was encountered while trying to flush usage events
