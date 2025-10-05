@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: stocks_model
+    schema: raw
+    database: stocks-data-model
+
+    tables:
+      - name: raw_stock_prices
+      - name: raw_company
+      - name: raw_splits
+      - name: raw_dividends
+      - name: raw_financials_anual
