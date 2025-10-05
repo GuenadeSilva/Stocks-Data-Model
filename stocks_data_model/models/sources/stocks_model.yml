@@ -10,4 +10,5 @@ sources:
       - name: raw_company
       - name: raw_splits
       - name: raw_dividends
-      - name: raw_financials_anual
+      - name: raw_financials_annual
+      - name: raw_financials_quarterly
