@@ -3,6 +3,9 @@ dialect = bigquery
 templater = jinja
 max_line_length = 200
 
+# Rules to be excluded
+exclude_rules = ST06
+
 # Keyword identifiers
 [sqlfluff:rules:references.keywords]
 unquoted_identifiers_policy = none
