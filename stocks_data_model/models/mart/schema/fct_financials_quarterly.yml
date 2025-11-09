@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: fct_financials_quarterly
+    description: "{{ doc('fct_financials_quarterly') }}"
+    columns:
+      - name: primary_key
+        description: "Surrogate primary key uniquely identifying a quarterly financial record."
+        tests:
+          - unique
+          - not_null
+
+      - name: date
+        description: "The reporting date associated with the quarterly financial statement."
+
+      - name: symbol
+        description: "Ticker symbol for the company associated with the quarterly metrics."
+
+      - name: total_revenue
+        description: "Total revenue reported for the quarter."
+
+      - name: ebitda
+        description: "Quarterly EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization)."
+
+      - name: ebit
+        description: "Quarterly EBIT (Earnings Before Interest and Taxes)."
+
+      - name: net_income
+        description: "Net income reported for the quarter."
+
+      - name: gross_profit
+        description: "Gross profit reported for the quarter."
+
+      - name: etl_timestamp
+        description: "Timestamp representing when the row was processed by the ETL pipeline."

@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: fct_quarterly_dividends
+    description: "{{ doc('fct_quarterly_dividends') }}"
+    columns:
+      - name: primary_key
+        description: "Surrogate primary key uniquely identifying a dividend payout record."
+        tests:
+          - unique
+          - not_null
+
+      - name: quarter
+        description: "Quarter-end date corresponding to the dividend payout, joined from the date dimension."
+
+      - name: symbol
+        description: "Ticker symbol for the company issuing the dividend."
+
+      - name: dividend_amount
+        description: "Dividend amount paid for the referenced period."
+
+      - name: etl_timestamp
+        description: "Timestamp indicating when this record was created in the ETL process."

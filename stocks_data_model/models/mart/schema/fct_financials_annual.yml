@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: fct_financials_annual
+    description: "{{ doc('fct_financials_annual') }}"
+    columns:
+      - name: primary_key
+        description: "Surrogate primary key representing a unique annual financial record."
+        tests:
+          - unique
+          - not_null
+
+      - name: date
+        description: "The reporting date for the annual financial statement."
+
+      - name: symbol
+        description: "Ticker symbol identifying the company associated with the financial metrics."
+
+      - name: total_revenue
+        description: "Total annual revenue reported by the company."
+
+      - name: ebitda
+        description: "Earnings Before Interest, Taxes, Depreciation, and Amortization."
+
+      - name: ebit
+        description: "Earnings Before Interest and Taxes."
+
+      - name: net_income
+        description: "Net income reported for the fiscal year."
+
+      - name: gross_profit
+        description: "Gross profit reported for the fiscal year."
+
+      - name: etl_timestamp
+        description: "Timestamp indicating when the row was processed by the ETL pipeline."

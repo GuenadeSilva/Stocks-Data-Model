@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: '{{ doc("dim_date") }}'
+    columns:
+      - name: date
+        description: "The calendar date; primary grain of the dimension."
+
+      - name: calendar_year
+        description: "Gregorian calendar year extracted from date."
+
+      - name: calendar_quarter
+        description: "Gregorian calendar quarter (1–4)."
+
+      - name: calendar_month
+        description: "Gregorian calendar month number (1–12)."
+
+      - name: month_name
+        description: "Full month name (e.g., January)."
+
+      - name: day_of_month
+        description: "Day of the month (1–31)."
+
+      - name: day_of_week
+        description: "Numeric day of week per BigQuery (1 = Sunday, 7 = Saturday)."
+
+      - name: day_name
+        description: "Full day name (e.g., Monday)."
+
+      - name: iso_week
+        description: "ISO week number (1–53)."
+
+      - name: iso_year
+        description: "ISO year associated with ISO week."
+
+      - name: is_weekend
+        description: "Boolean flag identifying weekend days."
+
+      - name: month_start_date
+        description: "First date of the month for the given date."
+
+      - name: month_end_date
+        description: "Last date of the month for the given date."
+
+      - name: quarter_start_date
+        description: "First date of the quarter for the given date."
+
+      - name: quarter_end_date
+        description: "Last date of the quarter for the given date."
+
+      - name: year_start_date
+        description: "First date of the Gregorian year for the given date."
+
+      - name: year_end_date
+        description: "Last date of the Gregorian year for the given date."
+
+      - name: fiscal_year
+        description: "Fiscal year (defined with an April start)."
+
+      - name: fiscal_quarter
+        description: "Fiscal quarter (1–4) based on April fiscal year start."
+
+      - name: fiscal_quarter_label
+        description: "Formatted fiscal quarter label, e.g., 2024-Q1."
+
+      - name: is_today
+        description: "Boolean flag for the current date."
+
+      - name: is_yesterday
+        description: "Boolean flag for the previous date."
+
+      - name: is_tomorrow
+        description: "Boolean flag for the next date."
