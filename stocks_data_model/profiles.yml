@@ -1,14 +1,24 @@
 stocks_data_model:
   target: dev
   outputs:
-    dev:
+    # Base configuration shared by all environments
+    base: &base
       type: bigquery
       method: service-account
       project: "{{ env_var('BIGQUERY_PROJECT') }}"
-      dataset: "{{ env_var('BIGQUERY_DATASET') }}"
       threads: 4
       keyfile: "{{ env_var('BIGQUERY_KEYFILE_PATH') }}"
       job_execution_timeout_seconds: 300
       job_retries: 1
       location: US
       priority: interactive
+
+    # Local development
+    dev:
+      <<: *base
+      dataset: stocks_model_dev
+
+    # Production (your real dataset)
+    prod:
+      <<: *base
+      dataset: "{{ env_var('BIGQUERY_DATASET') }}"
