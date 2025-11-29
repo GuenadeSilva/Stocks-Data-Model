@@ -45,4 +45,5 @@ jobs:
         run: |
           dbt deps --project-dir stocks_data_model --profiles-dir stocks_data_model
 
-          dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model
+          dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model \
+            --target prod
