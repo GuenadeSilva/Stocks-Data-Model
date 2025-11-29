@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 # ------------------------------
 load_dotenv()  # loads variables from .env file
 
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-BQ_DATASET = os.getenv("BQ_DATASET")
-GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH")
+GCP_PROJECT_ID = os.getenv("BIGQUERY_PROJECT")
+BQ_DATASET = os.getenv("BIGQUERY_DATASET")
+GCP_CREDENTIALS_PATH = os.getenv("BIGQUERY_KEYFILE_PATH")
 
 TICKERS = ["AAPL", "MSFT", "GOOGL", "UBER", "NVDA", "AMZN"]  # extend as needed
 
