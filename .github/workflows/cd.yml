@@ -42,7 +42,7 @@ jobs:
           dbt deps --project-dir stocks_data_model --profiles-dir stocks_data_model
 
           # Full build for production to ensure consistency
-          dbt build --project-dir stocks_data_model \
+          dbt build -s 'state:modified+' --project-dir stocks_data_model \
            --profiles-dir stocks_data_model \
            --target prod
 
