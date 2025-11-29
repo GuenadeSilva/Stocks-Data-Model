@@ -33,32 +33,9 @@ jobs:
         run: |
           echo '${{ secrets.GCP_CREDENTIALS_JSON }}' > /tmp/bigquery_keyfile.json
 
-      # --- NEW: Download the manifest from the main branch (Production) ---
-      # This allows dbt to know what the state of the world was before your changes.
-      - name: Download latest manifest artifact
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # 1. Get the list of artifacts for this repo
-          CONTENT=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
-
-          # 2. Find the latest artifact named 'dbt-manifest'
-          ARTIFACT_URL=$(echo "$CONTENT" | grep -A1 '"name": "dbt-manifest"' | grep '"archive_download_url":' | head -n1 | sed 's/.*: "\(.*\)",/\1/')
-
-          if [ -z "$ARTIFACT_URL" ]; then
-            echo "No manifest found. This might be the first run."
-          else
-            echo "Downloading manifest from $ARTIFACT_URL"
-            curl -s -L -H "Authorization: Bearer $GITHUB_TOKEN" -o artifacts.zip "$ARTIFACT_URL"
-            unzip artifacts.zip -d state
-          fi
-
-      # --- NEW: Run dbt in "Slim" mode ---
+      # --- Run dbt in "Slim" mode ---
       # 1. We change the dataset to a temporary CI schema.
-      # 2. We point --state to the 'state' folder we just unzipped.
-      # 3. We use state:modified+ to run only changed models and children.
+      # 2. We use state:modified+ to run only changed models and children.
       - name: Run dbt (Slim CI)
         env:
           BIGQUERY_PROJECT: 'stocks-data-model'
@@ -68,14 +45,4 @@ jobs:
         run: |
           dbt deps --project-dir stocks_data_model --profiles-dir stocks_data_model
 
-          # Check if we successfully downloaded a manifest for comparison
-          if [ -f "state/manifest.json" ]; then
-            echo "Manifest found. Running Slim CI (only modified models)."
-            dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model \
-              --defer --state ./state  \
-              --target prod
-          else
-            echo "No manifest found. Running full build."
-            dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model  \
-              --target prod
-          fi
+          dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model
