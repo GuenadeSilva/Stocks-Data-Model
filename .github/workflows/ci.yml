@@ -24,6 +24,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # ---- Get PR-scoped schema suffix ----
+      - name: Get Schema ID
+        id: schema_id
+        run: echo "SCHEMA_ID='dbt_ci_${{ github.event.number }}' >> $GITHUB_ENV
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -46,4 +51,4 @@ jobs:
           dbt deps --project-dir stocks_data_model --profiles-dir stocks_data_model
 
           dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model \
-            --target prod
+          --target ci

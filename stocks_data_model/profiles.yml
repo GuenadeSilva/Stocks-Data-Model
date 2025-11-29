@@ -22,3 +22,7 @@ stocks_data_model:
     prod:
       <<: *base
       dataset: "{{ env_var('BIGQUERY_DATASET') }}"
+
+    ci:
+      <<: *base
+      dataset: "{{ env_var('BIGQUERY_DATASET') }}"
