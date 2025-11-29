@@ -1,0 +1,45 @@
+name: dbt CI Teardown
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  cleanup_dataset:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Delete CI Dataset
+        shell: bash
+        env:
+          # Must match the naming convention used in your ci.yml
+          DATASET_NAME: 'dbt_ci_${{ github.event.number }}'
+          PROJECT_ID: 'stocks-data-model'
+        run: |
+          echo "Deleting dataset: $PROJECT_ID:$DATASET_NAME"
+
+          # 'bq rm' flags:
+          # -r : recursive (deletes all tables/views inside)
+          # -f : force (no confirmation prompt)
+          # -d : dataset (specifies we are deleting a dataset)
+
+          # We use || true to prevent the workflow from failing if the dataset
+          # doesn't exist (e.g., if the CI run failed before creating it).
+          bq rm -r -f -d "$PROJECT_ID:$DATASET_NAME" || true
+
+          echo "Cleanup complete."
