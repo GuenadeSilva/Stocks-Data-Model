@@ -72,7 +72,6 @@ jobs:
           if [ -f "state/manifest.json" ]; then
             echo "Manifest found. Running Slim CI (only modified models)."
             dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model \
-              -s 'state:modified+' \
               --defer --state ./state  \
               --target prod
           else
