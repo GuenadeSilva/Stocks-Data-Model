@@ -73,8 +73,10 @@ jobs:
             echo "Manifest found. Running Slim CI (only modified models)."
             dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model \
               --select state:modified+ \
-              --defer --state ./state
+              --defer --state ./state  \
+              --target prod
           else
             echo "No manifest found. Running full build."
-            dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model
+            dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model  \
+              --target prod
           fi
