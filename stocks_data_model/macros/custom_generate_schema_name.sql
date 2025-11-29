@@ -1,9 +1,23 @@
 {% macro generate_schema_name(custom_schema_name, node) -%}
-    {#
-      Prevent dbt from concatenating target.dataset with schema folder.
-      If a schema is defined (e.g. staging/intermediate/marts), use it directly.
-      Otherwise, fall back to the target dataset.
-      More info on that here -> https://www.youtube.com/watch?v=AvrVQr5FHwk
-    #}
-    {{ custom_schema_name }}
+
+    {%- set default_schema = target.schema -%}
+
+    {# 1. In DEV: Ignore custom schemas entirely. #}
+    {#    Everything goes to 'stocks_model_dev' defined in profiles.yml #}
+    {%- if target.name == 'dev' -%}
+
+        {{ default_schema }}
+
+    {# 2. In PROD: Use your custom schema (e.g., 'staging') directly. #}
+    {#    This keeps the 'clean' names you wanted from the video. #}
+    {%- else -%}
+
+        {%- if custom_schema_name is none -%}
+            {{ default_schema }}
+        {%- else -%}
+            {{ custom_schema_name | trim }}
+        {%- endif -%}
+
+    {%- endif -%}
+
 {%- endmacro %}
