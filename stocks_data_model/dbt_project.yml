@@ -36,7 +36,7 @@ models:
       +schema: staging
       +materialized: view
       +tags: "staging"
-    intermediate:
+    Intermediate:
       +schema: intermediate
       +materialized: view
       +tags: "intermediate"
