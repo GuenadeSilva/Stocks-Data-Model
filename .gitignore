@@ -1,5 +1,6 @@
 #Exclude local variables file
 .env
+.envrc
 
 #Exclude dbt related yml files
 profiles.yml
