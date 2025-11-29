@@ -1,0 +1,55 @@
+name: dbt CD (Production)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  dbt_production_run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Required for OIDC if you switch to it later, but good to have.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
+
+      - name: 'Create BigQuery Keyfile'
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS_JSON }}' > /tmp/bigquery_keyfile.json
+
+      - name: Run dbt Production
+        env:
+          BIGQUERY_PROJECT: 'stocks-data-model'
+          BIGQUERY_DATASET: 'raw' # Targeted production dataset
+          BIGQUERY_KEYFILE_PATH: '/tmp/bigquery_keyfile.json'
+        run: |
+          dbt deps --project-dir stocks_data_model --profiles-dir stocks_data_model
+
+          # Full build for production to ensure consistency
+          dbt build --project-dir stocks_data_model --profiles-dir stocks_data_model
+
+      # --- CRITICAL STEP FOR SLIM CI ---
+      # This uploads the 'state' of production so your CI pipeline can
+      # download it and compare new PRs against it.
+      - name: Upload manifest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-manifest
+          path: stocks_data_model/target/manifest.json
+          retention-days: 90 # Keep history available for CI checks
