@@ -3,7 +3,6 @@
 .envrc
 
 #Exclude dbt related yml files
-profiles.yml
 .user.yml
 
 #Exclude logs
