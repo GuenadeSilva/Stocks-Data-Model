@@ -67,4 +67,4 @@ enhanced as (
     from date_spine
 )
 
-select * from enhanced
+select *, {{ current_ts() }} as etl_timestamp from enhanced
